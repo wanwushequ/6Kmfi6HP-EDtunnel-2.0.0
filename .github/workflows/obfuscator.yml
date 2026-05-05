@@ -1,0 +1,57 @@
+name: Obfuscate and Commit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+  # 1. 定时
+  schedule:
+    - cron: '0 */6 * * *' 
+  workflow_dispatch:
+
+jobs:
+  obfuscate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Obfuscate code
+        run: npm run obfuscate
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # 2.明文
+          if [ -f "dist/bundle.js" ]; then
+            cp dist/bundle.js ./明文.js
+          fi
+          
+          # 3.提交
+          git add _worker.js 明文.js
+          
+          PREV_MSG=$(git log -1 --pretty=format:"%s" HEAD)
+          git commit -m "Update: _worker.js & 明文.js ($PREV_MSG)" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
