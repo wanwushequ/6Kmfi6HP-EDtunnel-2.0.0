@@ -7,9 +7,6 @@ on:
       - 'src/**'
       - 'package.json'
       - 'package-lock.json'
-  # 1. 定时
-  schedule:
-    - cron: '0 */6 * * *' 
   workflow_dispatch:
 
 jobs:
@@ -38,17 +35,9 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
-          # 2.明文
-          if [ -f "dist/bundle.js" ]; then
-            cp dist/bundle.js ./明文.js
-          fi
-          
-          # 3.提交
-          git add _worker.js 明文.js
-          
+          git add _worker.js
           PREV_MSG=$(git log -1 --pretty=format:"%s" HEAD)
-          git commit -m "Update: _worker.js & 明文.js ($PREV_MSG)" || echo "No changes to commit"
+          git commit -m "Obfuscate _worker.js ($PREV_MSG)" || echo "No changes to commit"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
