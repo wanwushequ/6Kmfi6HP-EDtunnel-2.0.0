@@ -47,9 +47,8 @@ jobs:
           
           # 3.提交
           git add _worker.js 明文.js
-          
-          PREV_MSG=$(git log -1 --pretty=format:"%s" HEAD)
-          git commit -m "Update: _worker.js & 明文.js ($PREV_MSG)" || echo "No changes to commit"
+          NOW=$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M')
+          git commit -m "Automated Sync: $NOW" || echo "No changes to commit"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
